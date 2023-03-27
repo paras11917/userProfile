@@ -7,8 +7,7 @@ import { useNavigate,Link } from 'react-router-dom'
 import { Player } from 'video-react';
 import "../node_modules/video-react/dist/video-react.css";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faUpload } from '@fortawesome/free-solid-svg-icons'
-import { faSpinner, faImage, faVideo } from '@fortawesome/free-solid-svg-icons'
+import { faSpinner, faImage, faVideo, faUpload } from '@fortawesome/free-solid-svg-icons'
 const Register = () => {
    const auth = getAuth()
    const navigate = useNavigate()
@@ -20,7 +19,10 @@ const Register = () => {
          }
       })
    }, [])
+
    let googleProvider = new GoogleAuthProvider()
+   const collectionRef = collection(database, 'users')
+
    const [data, setData] = useState({
       name: "",
       username: "",
@@ -34,11 +36,11 @@ const Register = () => {
       coverURL: null,
       videoURL: null
    })
+
    const [loadingImg, setLoadingImg] = useState(false)
    const [loadingCov, setLoadingCov] = useState(false)
    const [loadingVid, setLoadingVid] = useState(false)
 
-   const collectionRef = collection(database, 'users')
    const [imagePreview, setImagePreview] = useState(null)
    const [coverPreview, setCoverPreview] = useState(null)
    const [videoPreview, setVideoPreview] = useState(null)
@@ -48,18 +50,14 @@ const Register = () => {
       event.preventDefault()
       if (event.target.name === 'image') {
          setData({ ...data, [event.target.name]: event.target.files[0] })
-         
-         setImagePreview(URL.createObjectURL(event.target.files[0]))
-         
+         setImagePreview(URL.createObjectURL(event.target.files[0])) 
       }
       else if (event.target.name === 'cover') {
          setData({ ...data, [event.target.name]: event.target.files[0] })
-         
          setCoverPreview(URL.createObjectURL(event.target.files[0]))
       }
       else if (event.target.name === 'video') {
          setData({ ...data, [event.target.name]: event.target.files[0] })
-        
          setVideoPreview(URL.createObjectURL(event.target.files[0]))
       }
       else setData({ ...data, [event.target.name]: event.target.value })
@@ -130,10 +128,8 @@ const Register = () => {
 
    const handleSubmit = (event) => {
       event.preventDefault()
-
       if (data.imageURL && data.coverURL && data.videoURL) {
          createUserWithEmailAndPassword(auth, data.email, data.password).then((response) => {
-            console.log(response.user)
             addDoc(collectionRef, {
                name: data.name,
                username: data.username,
@@ -154,7 +150,6 @@ const Register = () => {
 
    const goolgeLogin = () => {
       signInWithPopup(auth, googleProvider).then((gresponse) => {
-         console.log(gresponse.user)
          getDocs(collectionRef).then((response) => {
             const data = response.docs.filter((item) => {
                return item.data().uid === gresponse.user.uid
@@ -168,13 +163,11 @@ const Register = () => {
                   imageURL: gresponse.user.photoURL,
                   coverURL: gresponse.user.photoURL,
                   uid: gresponse.user.uid
-
                })
             }
          }).catch((err) => {
             console.log(err)
          })
-
          navigate(`/user/${gresponse.user.uid}`)
       }).catch((err) => {
          alert(err.message)
@@ -225,9 +218,6 @@ const Register = () => {
                               name='image'
                            />
                         </div>
-
-
-
                         <div
                            className="border-2 border-dashed hover:cursor-pointer border-white p-4 w-40 h-40 flex items-center text-center justify-center"
                            onClick={() => { if (!coverPreview) document.getElementById('coverInput').click() }}
@@ -291,12 +281,6 @@ const Register = () => {
 
 
                </div>
-               {/* <input className='rounded border border-gray-400 mb-2 p-2 w-80' type='file' accept='image/*' onChange={handleChange} name='cover' />
-           <button className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded' onClick={uploadCover} >Upload Cover Photo</button> */}
-               {/* 
-           <input className='rounded border border-gray-400 mb-2 p-2 w-80' type='file' accept='video/*' onChange={handleChange} name='video' />
-           <button className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded' onClick={uploadVideo} >Upload Video</button> */}
-
                <button className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-4" type='submit' >SignUp</button>
             </form >
             <Link className='mt-2 text-blue-600 text-right' to='/login'>Already Have Account?</Link>

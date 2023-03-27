@@ -14,11 +14,13 @@ const Login = () => {
          }
       })
    }, [])
-   let googleProvider = new GoogleAuthProvider()
+
    const [data, setData] = useState({
       email: "",
       password: ""
    })
+   
+   let googleProvider = new GoogleAuthProvider()
    const collectionRef = collection(database, 'users')
 
    const handleChange = (event) => {
